@@ -7,12 +7,12 @@ import (
 
 func main() {
 	filename := "../../scripts/basic_src/print_loop.txt"
-	p,err := pkg.OpenPort()
-	defer p.Port.Close()
+	p, err := pkg.OpenPort()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer p.Port.Close()
 	program := pkg.ReadProgram(filename)
 	go p.ProgramExecute(program)
-	p.PrintLoop()
+	p.PrintLoopPararel()
 }

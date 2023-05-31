@@ -2,16 +2,18 @@ package pkg
 
 import (
 	"log"
+	"strconv"
+	"sync"
 	"time"
 
 	"go.bug.st/serial"
 )
 
-type myPort struct{
+type myPort struct {
 	Port serial.Port
 }
 
-func OpenPort() (*myPort,error) {
+func OpenPort() (*myPort, error) {
 	mode := &serial.Mode{
 		BaudRate: 115200,
 	}
@@ -19,38 +21,38 @@ func OpenPort() (*myPort,error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return  &myPort{Port: port}, err
+	return &myPort{Port: port}, err
 }
 
-func (p *myPort)PortWrite(s string)error{
+func (p *myPort) PortWrite(s string) error {
 	_, err := p.Port.Write([]byte(s + "\r"))
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	time.Sleep(100 * time.Millisecond)
-	return	nil
+	return nil
 }
 
-func (p *myPort)PortWriteCommand(s []string)error {
-	for _,v := range s{
+func (p *myPort) PortWriteCommand(s []string) error {
+	for _, v := range s {
 		err := p.PortWrite(v)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (p *myPort)ProgramExecute(program string){
+func (p *myPort) ProgramExecute(program string) {
 	p.PortWrite("edit 1")
 	p.PortWrite(program)
 	p.PortWrite("edit 0")
 	p.PortWrite("run")
 }
 
-func (p *myPort)VuoyExecute(file string){
+func (p *myPort) VuoyExecute(file string) {
 	// delete program
-	commnads := []string{"edit 1","New","psave","edit 0","run"}
+	commnads := []string{"edit 1", "New", "psave", "edit 0", "run"}
 	p.PortWriteCommand(commnads)
 
 	p.Port.Write([]byte("edit 1\r"))
@@ -59,12 +61,11 @@ func (p *myPort)VuoyExecute(file string){
 	if err != nil {
 		log.Fatal(err)
 	}
-	commnads = []string{"own =1","dst = 0","Auto=\"pload:run\"","ssave","psave","edit 0"}
+	commnads = []string{"own =1", "dst = 0", "Auto=\"pload:run\"", "ssave", "psave", "edit 0"}
 	p.PortWriteCommand(commnads)
 }
 
-
-func (p *myPort)PrintLoop(){
+func (p *myPort) PrintLoop() {
 	for {
 		buf := make([]byte, 128)
 		n, err := p.Port.Read(buf)
@@ -76,24 +77,33 @@ func (p *myPort)PrintLoop(){
 }
 
 func (p *myPort) PrintLoopPararel() {
+	count := 0
 	buffer := make(chan []byte, 100) // Create a channel to store data
 
-	// Start a goroutine to read from the port
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	go func() {
+		defer wg.Done()
 		for {
 			buf := make([]byte, 128)
-			_, err := p.Port.Read(buf)
+			n, err := p.Port.Read(buf)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				close(buffer)
+				return
 			}
-			buffer <- buf // Send the data to the channel
+			buffer <- buf[:n] // Send the data to the channel
 		}
 	}()
 
-	// Start another goroutine to consume data from the channel and print
 	go func() {
+		count += 1
+		defer wg.Done()
 		for buf := range buffer {
-			log.Print(string(buf))
+			log.Print(strconv.Itoa(count) + ":" + string(buf))
 		}
 	}()
+
+	wg.Wait()
 }
