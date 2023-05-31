@@ -79,16 +79,21 @@ func (p *myPort) PrintLoop() {
 	}
 }
 
-func (p *myPort) PrintLoopParallel(logChannel chan LogEntry) {
+func (p *myPort) PrintLoopParallel(logChannel chan LogEntry, loopcount int) {
 	count := 0
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	logChannel = make(chan LogEntry, 100)
 	go func() {
 		defer wg.Done()
 		for {
+			// 一定回数読み込んだら終了
+			if count >= loopcount {
+				log.Println("Max count reached, closing goroutine.")
+				return
+			}
+
 			buf := make([]byte, 128)
 			n, err := p.Port.Read(buf)
 			if err != nil {
@@ -96,10 +101,12 @@ func (p *myPort) PrintLoopParallel(logChannel chan LogEntry) {
 				return
 			}
 			count += 1
-			log.Println("Read data:", string(buf[:n]))                  // For debugging
 			logChannel <- LogEntry{Count: count, Text: string(buf[:n])} // Send the data to the channel
 		}
 	}()
 
 	wg.Wait()
+
+	// ゴルーチンが終了したらチャネルをクローズ
+	close(logChannel)
 }

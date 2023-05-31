@@ -1,6 +1,6 @@
 10 D = 1
 20 Print "@"D;
 30 D = D +1
-40 Delay 1000
+40 Delay 500
 50 Goto 20
 
