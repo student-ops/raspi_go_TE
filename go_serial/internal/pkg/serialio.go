@@ -45,6 +45,7 @@ func (p *myPort)ProgramExecute(program string){
 	p.PortWrite("edit 1")
 	p.PortWrite(program)
 	p.PortWrite("edit 0")
+	p.PortWrite("run")
 }
 
 func (p *myPort)VuoyExecute(file string){
@@ -62,3 +63,14 @@ func (p *myPort)VuoyExecute(file string){
 	p.PortWriteCommand(commnads)
 }
 
+
+func (p *myPort)PrintLoop(){
+	for {
+		buf := make([]byte, 128)
+		n, err := p.Port.Read(buf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Print(string(buf[:n]))
+	}
+}

@@ -13,5 +13,6 @@ func main() {
 		log.Fatal(err)
 	}
 	program := pkg.ReadProgram(filename)
-	p.ProgramExecute(program)
+	go p.ProgramExecute(program)
+	p.PrintLoop()
 }
