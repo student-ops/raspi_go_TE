@@ -67,10 +67,18 @@ func (p *myPort)VuoyExecute(file string){
 func (p *myPort)PrintLoop(){
 	for {
 		buf := make([]byte, 128)
-		n, err := p.Port.Read(buf)
+		_, err := p.Port.Read(buf)
 		if err != nil {
 			log.Fatal(err)
 		}
+		go (func(){
+			sbuf := make([]byte, 128)
+			_, serr := p.Port.Read(buf)
+			if serr != nil {
+				log.Fatal(err)
+			}
+			log.Print(string(buf[:n]))
+		})
 		log.Print(string(buf[:n]))
 	}
 }
