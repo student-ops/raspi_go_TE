@@ -22,33 +22,43 @@ func OpenPort() (*myPort,error) {
 	return  &myPort{Port: port}, err
 }
 
-func (p *myPort)PortWrite(s string){
-	p.Port.Write([]byte(s + "\r"))
-	time.Sleep(100 * time.Millisecond)
-}
-
-func (p *myPort)PortWriteCommand(s []string){
-	for _,v := range s{
-		p.PortWrite(v)
+func (p *myPort)PortWrite(s string)error{
+	_, err := p.Port.Write([]byte(s + "\r"))
+	if err != nil{
+		return err
 	}
+	time.Sleep(100 * time.Millisecond)
+	return	nil
 }
 
+func (p *myPort)PortWriteCommand(s []string)error {
+	for _,v := range s{
+		err := p.PortWrite(v)
+		if err != nil{
+			return err
+		}
+	}
+	return nil
+}
 
 func (p *myPort)ProgramExecute(program string){
+	p.PortWrite("edit 1")
+	p.PortWrite(program)
+	p.PortWrite("edit 0")
+}
+
+func (p *myPort)VuoyExecute(file string){
 	// delete program
 	commnads := []string{"edit 1","New","psave","edit 0","run"}
 	p.PortWriteCommand(commnads)
 
 	p.Port.Write([]byte("edit 1\r"))
-	n, err := p.Port.Write([]byte(program))
+	program := ReadProgram(file)
+	err := p.PortWrite(program)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Sent %v bytes \n", n)
-	p.Port.Write([]byte("own = 1\r"))
-	p.Port.Write([]byte("dst = 0\r"))
-	p.Port.Write([]byte("Auto=\"pload:run\"\r"))
-	p.Port.Write([]byte("ssave\r"))
-	p.Port.Write([]byte("psave\r"))
-	p.Port.Write([]byte("edit 0\r"))
+	commnads = []string{"own =1","dst = 0","Auto=\"pload:run\"","ssave","psave","edit 0"}
+	p.PortWriteCommand(commnads)
 }
+
