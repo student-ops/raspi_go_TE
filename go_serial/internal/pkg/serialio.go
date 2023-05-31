@@ -67,18 +67,33 @@ func (p *myPort)VuoyExecute(file string){
 func (p *myPort)PrintLoop(){
 	for {
 		buf := make([]byte, 128)
-		_, err := p.Port.Read(buf)
+		n, err := p.Port.Read(buf)
 		if err != nil {
 			log.Fatal(err)
 		}
-		go (func(){
-			sbuf := make([]byte, 128)
-			_, serr := p.Port.Read(buf)
-			if serr != nil {
-				log.Fatal(err)
-			}
-			log.Print(string(buf[:n]))
-		})
 		log.Print(string(buf[:n]))
 	}
+}
+
+func (p *myPort) PrintLoopPararel() {
+	buffer := make(chan []byte, 100) // Create a channel to store data
+
+	// Start a goroutine to read from the port
+	go func() {
+		for {
+			buf := make([]byte, 128)
+			_, err := p.Port.Read(buf)
+			if err != nil {
+				log.Fatal(err)
+			}
+			buffer <- buf // Send the data to the channel
+		}
+	}()
+
+	// Start another goroutine to consume data from the channel and print
+	go func() {
+		for buf := range buffer {
+			log.Print(string(buf))
+		}
+	}()
 }
