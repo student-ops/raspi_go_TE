@@ -13,13 +13,13 @@ gtkterm -p /dev/ttyUSB0 -s 115200 -e -L &
 sleep 10
 
 if [ "$response" == "1" ]; then
-    cd gateway
+    cd cmd/gateway
     go run main.go
 elif [ "$response" == "2" ]; then
-    cd vuoy
+    cd cmd/vuoy
     go run main.go
 elif [ "$response" == "3" ]; then
-    cd print_loop
+    cd cmd/print_loop
     go run main.go
 else
     echo "Invalid input. Please enter 1, 2, or 3."
