@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"log"
+	"time"
 
 	"go.bug.st/serial"
 )
@@ -21,14 +22,22 @@ func OpenPort() (*myPort,error) {
 	return  &myPort{Port: port}, err
 }
 
-func (p *myPort)PortWrite()
+func (p *myPort)PortWrite(s string){
+	p.Port.Write([]byte(s + "\r"))
+	time.Sleep(100 * time.Millisecond)
+}
+
+func (p *myPort)PortWriteCommand(s []string){
+	for _,v := range s{
+		p.PortWrite(v)
+	}
+}
+
 
 func (p *myPort)ProgramExecute(program string){
 	// delete program
-	p.Port.Write([]byte("edit 1\r"))
-	p.Port.Write([]byte("New\r"))
-	p.Port.Write([]byte("psave\r"))
-	p.Port.Write([]byte("edit 0\r"))
+	commnads := []string{"edit 1","New","psave","edit 0","run"}
+	p.PortWriteCommand(commnads)
 
 	p.Port.Write([]byte("edit 1\r"))
 	n, err := p.Port.Write([]byte(program))
