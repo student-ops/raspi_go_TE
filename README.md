@@ -58,6 +58,7 @@ python 実行時にコマンドライン引数を入れると url
 # Go ドキュメント
 
 go_serial/docs
+
 https://github.com/golang-standards/project-layout/blob/master/README_ja.md
 
 に準拠
