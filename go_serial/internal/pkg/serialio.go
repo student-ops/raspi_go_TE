@@ -93,12 +93,12 @@ func (p *myPort) PrintLoopPararel() {
 				close(buffer)
 				return
 			}
+			count += 1
 			buffer <- buf[:n] // Send the data to the channel
 		}
 	}()
 
 	go func() {
-		count += 1
 		defer wg.Done()
 		for buf := range buffer {
 			log.Print(strconv.Itoa(count) + ":" + string(buf))

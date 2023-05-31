@@ -17,7 +17,7 @@ func TestReadProgram(t *testing.T) {
 }
 
 func TestSerialIo(t *testing.T) {
-	filename := "../../scripts/basic_src/print_loop.txt"
+	filename := "../../scripts/basic_src/printloop_with_count.txt"
 	p, err := pkg.OpenPort()
 	if err != nil {
 		log.Fatal(err)
