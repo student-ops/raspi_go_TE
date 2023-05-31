@@ -10,14 +10,36 @@ import (
 	"time"
 )
 
-func TestReadProgram(t *testing.T) {
+func TestResetProgram(t *testing.T) {
 	p, err := pkg.OpenPort()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	defer p.Port.Close()
-	commnads := []string{"edit 1", "New", "psave", "edit 0", "run"}
-	p.PortWriteCommand(commnads)
+	buf := make([]byte, 128)
+	commands := []string{"0x03", "edit 1", "New", "psave", "edit 0"}
+	if err = p.PortWriteCommands(commands); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan struct{})
+	go func() {
+		if err = p.PortWrite("run"); err != nil {
+			t.Error(err)
+		}
+		close(done)
+	}()
+
+	n, err := p.Port.Read(buf)
+	if err != nil {
+		t.Errorf("failed port read %v", err)
+	}
+
+	// Wait for the PortWrite goroutine to finish
+	<-done
+
+	output := string(buf[:n])
+	t.Logf("read %s", output)
 }
 
 func TestSerialIo(t *testing.T) {

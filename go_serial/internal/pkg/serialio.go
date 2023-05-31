@@ -36,7 +36,7 @@ func (p *myPort) PortWrite(s string) error {
 	return nil
 }
 
-func (p *myPort) PortWriteCommand(s []string) error {
+func (p *myPort) PortWriteCommands(s []string) error {
 	for _, v := range s {
 		err := p.PortWrite(v)
 		if err != nil {
@@ -56,7 +56,7 @@ func (p *myPort) ProgramExecute(program string) {
 func (p *myPort) VuoyExecute(file string) {
 	// delete program
 	commnads := []string{"edit 1", "New", "psave", "edit 0", "run"}
-	p.PortWriteCommand(commnads)
+	p.PortWriteCommands(commnads)
 
 	p.Port.Write([]byte("edit 1\r"))
 	program := ReadProgram(file)
@@ -65,7 +65,7 @@ func (p *myPort) VuoyExecute(file string) {
 		log.Fatal(err)
 	}
 	commnads = []string{"own =1", "dst = 0", "Auto=\"pload:run\"", "ssave", "psave", "edit 0"}
-	p.PortWriteCommand(commnads)
+	p.PortWriteCommands(commnads)
 }
 
 func (p *myPort) PrintLoop() {
