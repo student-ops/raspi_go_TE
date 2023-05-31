@@ -76,7 +76,7 @@ func (p *myPort) PrintLoop() {
 	}
 }
 
-func (p *myPort) PrintLoopPararel() {
+func (p *myPort) PrintLoopParallel() {
 	count := 0
 	buffer := make(chan []byte, 100) // Create a channel to store data
 
