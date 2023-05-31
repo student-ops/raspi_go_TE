@@ -15,5 +15,5 @@ func main() {
 	defer p.Port.Close()
 	program := pkg.ReadProgram(filename)
 	p.ProgramExecute(program)
-	p.PrintLoopPararel()
+	p.PrintLoopParallel()
 }

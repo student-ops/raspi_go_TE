@@ -5,6 +5,7 @@ import (
 	"go_serial/internal/pkg"
 	"log"
 	"testing"
+	"time"
 )
 
 func TestReadProgram(t *testing.T) {
@@ -30,7 +31,8 @@ func TestSerialIo(t *testing.T) {
 	}
 	defer p.Port.Close()
 	program := pkg.ReadProgram(filename)
-	go p.ProgramExecute(program)
+	p.ProgramExecute(program)
+	time.Sleep(500 * time.Microsecond)
 	p.PrintLoopParallel()
 
 	logChannel := make(chan LogEntry, 100)

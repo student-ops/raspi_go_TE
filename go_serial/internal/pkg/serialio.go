@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"log"
-	"strconv"
 	"sync"
 	"time"
 
@@ -101,7 +100,7 @@ func (p *myPort) PrintLoopParallel() {
 	go func() {
 		defer wg.Done()
 		for buf := range buffer {
-			log.Print(strconv.Itoa(count) + ":" + string(buf))
+			log.Print(string(buf))
 		}
 	}()
 
