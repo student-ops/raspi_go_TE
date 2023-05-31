@@ -16,7 +16,6 @@ type LogEntry struct {
 	Text  string
 }
 
-
 func OpenPort() (*myPort, error) {
 	mode := &serial.Mode{
 		BaudRate: 115200,
@@ -86,7 +85,7 @@ func (p *myPort) PrintLoopParallel(logChannel chan LogEntry) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	logChannel := make(chan LogEntry, 100)
+	logChannel = make(chan LogEntry, 100)
 	go func() {
 		defer wg.Done()
 		for {
@@ -97,7 +96,7 @@ func (p *myPort) PrintLoopParallel(logChannel chan LogEntry) {
 				return
 			}
 			count += 1
-			log.Println("Read data:", string(buf[:n])) // For debugging
+			log.Println("Read data:", string(buf[:n]))                  // For debugging
 			logChannel <- LogEntry{Count: count, Text: string(buf[:n])} // Send the data to the channel
 		}
 	}()

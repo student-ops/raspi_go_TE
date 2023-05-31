@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-
 func TestReadProgram(t *testing.T) {
 	p, err := pkg.OpenPort()
 	if err != nil {
@@ -20,7 +19,6 @@ func TestReadProgram(t *testing.T) {
 	commnads := []string{"edit 1", "New", "psave", "edit 0", "run"}
 	p.PortWriteCommand(commnads)
 }
-
 
 func TestSerialIo(t *testing.T) {
 	filename := "../../scripts/basic_src/printloop_with_count.txt"
@@ -34,7 +32,7 @@ func TestSerialIo(t *testing.T) {
 	p.ProgramExecute(program)
 	time.Sleep(500 * time.Microsecond)
 
-	logChannel := make(chan LogEntry, 100)
+	logChannel := make(chan pkg.LogEntry, 100)
 	p.PrintLoopParallel(logChannel)
 
 	go func() {
@@ -46,7 +44,7 @@ func TestSerialIo(t *testing.T) {
 				return
 			}
 			fmt.Println("Received log entry:", string(buf[:n]))
-			logChannel <- LogEntry{Text: string(buf[:n])}
+			logChannel <- pkg.LogEntry{Text: string(buf[:n])}
 		}
 	}()
 
@@ -54,7 +52,6 @@ func TestSerialIo(t *testing.T) {
 
 	for logEntry := range logChannel {
 		// 変数logEntryを操作する
-		log.Println("hello")
 		log.Println("Received log entry:", logEntry.Text) // Add this line
 		pattern := `@(\d+)`
 		r := regexp.MustCompile(pattern)
@@ -73,10 +70,10 @@ func TestSerialIo(t *testing.T) {
 			log.Println("Parsed number:", number) // Add this line
 
 			failcount++
-			if previousNumber != number -1 {
-				log.Printf("packed lost count :%d" ,failcount)
+			if previousNumber != number-1 {
+				log.Printf("packed lost count :%d", failcount)
 			}
-	
+
 			previousNumber = number
 		}
 	}
