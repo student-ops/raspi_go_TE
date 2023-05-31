@@ -11,6 +11,11 @@ import (
 type myPort struct {
 	Port serial.Port
 }
+type LogEntry struct {
+	Count int
+	Text  string
+}
+
 
 func OpenPort() (*myPort, error) {
 	mode := &serial.Mode{
@@ -75,13 +80,13 @@ func (p *myPort) PrintLoop() {
 	}
 }
 
-func (p *myPort) PrintLoopParallel() {
+func (p *myPort) PrintLoopParallel(logChannel chan LogEntry) {
 	count := 0
-	buffer := make(chan []byte, 100) // Create a channel to store data
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(1)
 
+	logChannel := make(chan LogEntry, 100)
 	go func() {
 		defer wg.Done()
 		for {
@@ -89,18 +94,11 @@ func (p *myPort) PrintLoopParallel() {
 			n, err := p.Port.Read(buf)
 			if err != nil {
 				log.Println(err)
-				close(buffer)
 				return
 			}
 			count += 1
-			buffer <- buf[:n] // Send the data to the channel
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		for buf := range buffer {
-			log.Print(string(buf))
+			log.Println("Read data:", string(buf[:n])) // For debugging
+			logChannel <- LogEntry{Count: count, Text: string(buf[:n])} // Send the data to the channel
 		}
 	}()
 
