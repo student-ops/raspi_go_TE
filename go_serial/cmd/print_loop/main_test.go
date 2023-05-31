@@ -17,7 +17,8 @@ func TestResetProgram(t *testing.T) {
 	}
 	defer p.Port.Close()
 	buf := make([]byte, 128)
-	commands := []string{"0x03", "edit 1", "New", "psave", "edit 0"}
+	p.Port.Write([]byte{0x03})
+	commands := []string{"edit 1", "New", "psave", "edit 0"}
 	if err = p.PortWriteCommands(commands); err != nil {
 		t.Fatal(err)
 	}
