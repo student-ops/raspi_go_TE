@@ -1,0 +1,20 @@
+// vuoy A
+10 Bme A,B,C
+20 Txd=wChr(A);wChr(B);wChr(C)
+30 Send
+50 Delay 3000
+//recive
+50 Recv 5000
+60 If Stat<>10 Then 
+70 R=Rxdw(8)
+90 Sleep 1000
+80 If R="t" <>30 Then
+90 Sleep 60000
+100 Goto 10
+
+//30 EndIf
+//50 B=Rxdw(10)
+//60 C=Rxdw(12)
+//70 PRINT "@"RSSI;"@"A/10;".";A%10;"@"B/10;".";B%10;"@"C/10;".";C%10,"\r";
+//80 Goto 10
+//60 Goto 10
